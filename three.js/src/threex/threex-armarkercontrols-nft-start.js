@@ -116,6 +116,10 @@ ARjs.MarkerControls.prototype.updateWithModelViewMatrix = function (modelViewMat
         console.assert(false)
     }
 
+    // change axis orientation on marker - artoolkit say Z is normal to the marker - ar.js say Y is normal to the marker
+  	var markerAxisTransformMatrix = new THREE.Matrix4().makeRotationX(Math.PI/2)
+  	modelViewMatrix.multiply(markerAxisTransformMatrix)
+
     var renderReqd = false;
 
     // change markerObject3D.matrix based on parameters.changeMatrixMode
@@ -208,7 +212,7 @@ ARjs.MarkerControls.prototype._initArtoolkit = function () {
 
     var artoolkitMarkerId = null
 
-    var delayedInitTimerId = setInterval(function () {
+    var delayedInitTimerId = setInterval(() => {
         // check if arController is init
         var arController = _this.context.arController
         if (arController === null) return
@@ -273,10 +277,9 @@ ARjs.MarkerControls.prototype._initArtoolkit = function () {
     function handleNFT(descriptorsUrl, arController) {
         // create a Worker to handle loading of NFT marker and tracking of it
         var workerBlob = new Blob(
-          [workerRunner.toString().replace(/^function .+\{?|\}$/g, '')],
-          { type:'text/javascript' }
+            [workerRunner.toString().replace(/^function .+\{?|\}$/g, '')],
+            { type: 'text/js-worker' }
         );
-        workerBlob.type = "text/js-worker"
         var workerBlobUrl = URL.createObjectURL(workerBlob);
         var worker = new Worker(workerBlobUrl);
 
@@ -321,10 +324,12 @@ ARjs.MarkerControls.prototype._initArtoolkit = function () {
 
             worker.onmessage = function (ev) {
                 if (ev && ev.data && ev.data.type === 'endLoading') {
-                    var loader = document.querySelector('.arjs-nft-loader');
+                    var loader = document.querySelector('.arjs-loader');
                     if (loader) {
                         loader.remove();
                     }
+                    var endLoadingEvent = new Event('arjs-nft-loaded');
+                    window.dispatchEvent(endLoadingEvent);
                 }
 
                 if (ev && ev.data && ev.data.type === 'loaded') {
@@ -362,10 +367,12 @@ ARjs.MarkerControls.prototype._initArtoolkit = function () {
                 process();
             };
 
-        })
+        });
 
 
 
-    }
+    };
 
     function workerRunner() {
+    // continuing 'workerRunner' function at treex-armarkercontrols-nft-end.js file
+    // see the makefile of three.js folder to better understand the division of this function between two files

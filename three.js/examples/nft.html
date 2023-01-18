@@ -12,7 +12,7 @@
 
 <body style='position: absolute; top: 0; left: 0; width: 100%; height: 100%; margin : 0px; overflow: hidden;'>
     <style>
-        .arjs-nft-loader {
+        .arjs-loader {
             margin: 0 auto;
             width: 100%;
             height: 100%;
@@ -24,7 +24,7 @@
             align-items: center;
         }
 
-        .arjs-nft-loader-spinner {
+        .arjs-loader-spinner {
             z-index: 10;
             -webkit-transform: spin 1s linear infinite;
             animation: spin 1s linear infinite;
@@ -51,8 +51,8 @@
             }
         }
     </style>
-    <div class="arjs-nft-loader">
-        <div class="arjs-nft-loader-spinner"></div>
+    <div class="arjs-loader">
+        <div class="arjs-loader-spinner"></div>
     </div>
     <script>
         //////////////////////////////////////////////////////////////////////////////////
@@ -114,6 +114,11 @@
             onResize()
         })
 
+        // listener for end loading of NFT marker
+        window.addEventListener('arjs-nft-loaded', function(ev){
+          console.log(ev);
+        })
+
         function onResize(){
             arToolkitSource.onResizeElement()
             arToolkitSource.copyElementSizeTo(renderer.domElement)
@@ -128,8 +133,6 @@
 
         // create atToolkitContext
         var arToolkitContext = new THREEx.ArToolkitContext({
-            //cameraParametersUrl: '../../data/data/camera_para.dat',
-            cameraParametersUrl: 'https://ar-js-org.github.io/AR.js/data/data/camera_para.dat',
             detectionMode: 'mono',
             canvasWidth: 480,
             canvasHeight: 640,
@@ -180,7 +183,7 @@
             root.matrixAutoUpdate = false;
             root.add(model);
 
-            model.position.z = 0;
+            model.position.z = -200;
             model.position.x = 100;
             model.position.y = 100;
 
